@@ -67,22 +67,23 @@ const findDates = (value) => {
   return dates.join(', ');
 };
 
-export const notes = (state = initialState, action) => {
-  const calculateActive = (category) =>
-    state.items.reduce(
-      (acc, note) => (note.category === category && note.archived === false ? acc + 1 : acc),
-      0,
-    );
-  const calculateArchived = (category) =>
-    state.items.reduce(
-      (acc, note) => (note.category === category && note.archived === true ? acc + 1 : acc),
-      0,
-    );
+const calculateActive = (category, state) =>
+  state.items.reduce(
+    (acc, note) => (note.category === category && note.archived === false ? acc + 1 : acc),
+    0,
+  );
+const calculateArchived = (category, state) =>
+  state.items.reduce(
+    (acc, note) => (note.category === category && note.archived === true ? acc + 1 : acc),
+    0,
+  );
 
-  const calculate = (category) => ({
-    active: calculateActive(category),
-    archived: calculateArchived(category),
-  });
+const calculate = (category, state) => ({
+  active: calculateActive(category, state),
+  archived: calculateArchived(category, state),
+});
+
+export const notes = (state = initialState, action) => {
   switch (action.type) {
     case 'CREATE_NOTE':
       const { id, category, content, name, date } = action.payload;
@@ -129,7 +130,6 @@ export const notes = (state = initialState, action) => {
         items: [...state.items.map((el) => (el.id === action.id ? { ...el, archived: true } : el))],
       };
     case 'UNARCHIVE_NOTE':
-      console.log(state, action.id);
       return {
         ...state,
         items: [
@@ -154,9 +154,9 @@ export const notes = (state = initialState, action) => {
     case 'CALCULATE':
       return {
         ...state,
-        task: calculate('Task'),
-        thought: calculate('Random Thought'),
-        idea: calculate('Idea'),
+        task: calculate('Task', state),
+        thought: calculate('Random Thought', state),
+        idea: calculate('Idea', state),
       };
 
     default:
